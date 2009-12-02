@@ -1,0 +1,122 @@
+libvformat-ruby (2007.Q2.10) unstable; urgency=low
+
+  * Pridani encoderu do VFormat::Value#encode a VFormat::Value#decode_raw.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 23 Nov 2007 16:01:59 +0100
+
+libvformat-ruby (2007.Q2.9) unstable; urgency=low
+
+  * Opraveny testcases, aby odrazely novou konverzi UNTIL v RRULEs.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 20 Jul 2007 15:33:23 +0200
+
+libvformat-ruby (2007.Q2.8) unstable; urgency=low
+
+  * Drobna vylepseni.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Thu, 12 Jul 2007 18:05:05 +0200
+
+libvformat-ruby (2007.Q2.7) unstable; urgency=low
+
+  * Opraven jeden preklep.
+  * Pridano nekolik mixinu pro encodery, ktere modifikuji encodery pro potreby
+    ruznych (vadnych) zarizeni.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Sat, 30 Jun 2007 14:24:08 +0200
+
+libvformat-ruby (2007.Q2.6) 2007Q2; urgency=low
+
+  * TextPreRFC pri dekodovani escapuje znaky ";" a "\" - nekteri klienti je chybne
+    escapuji.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Tue, 19 Jun 2007 10:27:21 +0200
+
+libvformat-ruby (2007.Q2.5) 2007Q2; urgency=low
+
+  * Defaultni kodovani pro PreRFC neni ASCII, ale ISO-8859-1.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Wed, 30 May 2007 16:50:06 +0200
+
+libvformat-ruby (2007.Q2.4) 2007Q2; urgency=low
+
+  * Drobna vylepseni.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Tue, 22 May 2007 14:41:58 +0200
+
+libvformat-ruby (2007.Q2.3) 2007Q2; urgency=low
+
+  * Upravy pro chyby v Motorola telefonech.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Sun, 20 May 2007 22:33:47 +0200
+
+libvformat-ruby (2007.Q2.2) 2007Q1; urgency=low
+
+  * Drobne vylepseni Component#add metody.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 18 May 2007 22:59:11 +0200
+
+libvformat-ruby (2007.Q2.1) 2007Q1; urgency=low
+
+  * Pridana podpora timezon.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 18 May 2007 21:05:13 +0200
+
+libvformat-ruby (2007.Q1.10) 2007Q1; urgency=low
+
+  * Podstatna refaktorizace.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 11 May 2007 14:47:04 +0200
+
+libvformat-ruby (2007.Q1.9) 2007Q1; urgency=low
+
+  * Pridani VFormat::Attribute.with_value.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Mon,  2 Apr 2007 13:12:14 +0200
+
+libvformat-ruby (2007.Q1.8) 2007Q1; urgency=low
+
+  * Oprava bugy pri dekodovani.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Mon,  2 Apr 2007 11:22:07 +0200
+
+libvformat-ruby (2007.Q1.7) 2007Q1; urgency=low
+
+  * Oprava :structured typu ve VCARD2.1.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Fri, 23 Mar 2007 09:44:54 +0100
+
+libvformat-ruby (2007.Q1.6) 2007Q1; urgency=low
+
+  * Oprava pridavani CHARSET parametru.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Wed, 21 Mar 2007 12:42:19 +0100
+
+libvformat-ruby (2007.Q1.5) 2007Q1; urgency=low
+
+  * Rozsirena dokumentace.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Wed, 21 Mar 2007 09:39:35 +0100
+
+libvformat-ruby (2007.Q1.4) 2007Q1; urgency=low
+
+  * Pridan NIL_ATTRIBUTE.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Tue, 20 Mar 2007 16:25:56 +0100
+
+libvformat-ruby (2007.Q1.3) 2007Q1; urgency=low
+
+  * Nova verze. 
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Tue, 20 Mar 2007 13:00:52 +0100
+
+libvformat-ruby (2007.Q1.2) 2007Q1; urgency=low
+
+  * Upravy baliku.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Tue, 20 Mar 2007 11:10:19 +0100
+
+libvformat-ruby (2007.Q1.1) 2007Q1; urgency=low
+
+  * Initial release.
+
+ -- Jan Becvar <jan.becvar@solnet.cz>  Mon,  5 Sep 2005 22:08:22 +0200

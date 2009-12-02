@@ -1,0 +1,190 @@
+#! /usr/bin/ruby1.8
+#
+#  Copyright (c) 2007 Jan Becvar <jan.becvar@solnet.cz>
+#  Copyright (c) 2007 soLNet, s.r.o. 
+#
+#  License: GPL
+#
+
+$:.unshift(File.join(File.dirname(__FILE__), '../..', 'lib'))
+require 'find'
+require 'vformat/icalendar'
+require 'vformat/zoneinfo'
+require 'pp'
+
+structs = {}
+map = {}
+locations = {}
+
+files = []
+Find.find(File.dirname(__FILE__)) {|f| files << f}
+files.sort!
+
+files.each do |file|
+    next unless file =~ /\.ics$/
+
+    puts file
+
+    orig = File.read(file)
+    tz = VFormat.decode(orig).first
+    tz = tz['VTIMEZONE'] if tz.name == 'VCALENDAR'
+
+    # vypocet mapovacich tabulek pro vlozeni do zdrojaku
+    #
+    raise "Spatny pocet STANDARD komponent" unless tz.each('STANDARD').to_a.size == 1
+    raise "Vice jak jedna DAYLIGHT komponenta" if tz.each('STANDARD').to_a.size > 1
+
+    st = tz.first('STANDARD')
+    dl = tz.first('DAYLIGHT')
+
+    raise "RDATE v STANDARD komponente" if st.attribute?('RDATE')
+    raise "Chybi TZNAME v STANDARD komponente" unless st.attribute?('TZNAME')
+    raise "RDATE v DAYLIGHT komponente" if dl and dl.attribute?('RDATE')
+    raise "Chybi TZNAME v DAYLIGHT komponente" if dl and !dl.attribute?('TZNAME')
+
+
+    struct = VFormat::ZoneInfo::StDlStruct.new
+    struct.st_offset = st['TZOFFSETTO'].value.to_i
+    struct.st_name   = st['TZNAME'].value
+
+    if rrule = st['RRULE'].value
+        struct.set_st_from_date_time(st['DTSTART'].value)
+
+        raise "Nepodporovany format RRULE v STANDARD komponente" unless
+            rrule.encode =~ /^FREQ=YEARLY;BYMONTH=([^,;]+);BYDAY=([-+]?\d)([^,;]+)$/
+        raise "Jiny mesic v RRULE a DTSTART v STANDARD komponente" unless
+            struct.st_month == $1.to_i
+            
+        struct.st_wday_pos = $2.to_i
+        struct.st_wday = $3.downcase.intern
+
+        $stderr.puts "Jiny den v tydnu v RRULE a DTSTART v STANDARD komponente" unless
+            st['DTSTART'].value.wday == struct.st_wday
+    else
+        raise "Chybi RRULE v STANDARD komponente" if dl
+    end
+
+    if dl
+        struct.set_dl_from_date_time(dl['DTSTART'].value)
+        struct.dl_offset = dl['TZOFFSETTO'].value.to_i
+        struct.dl_name   = dl['TZNAME'].value
+
+        raise "Chybi RRULE v DAYLIGHT komponente" unless rrule = dl['RRULE'].value
+        raise "Nepodporovany format RRULE v DAYLIGHT komponente" unless
+            rrule.encode =~ /^FREQ=YEARLY;BYMONTH=([^,;]+);BYDAY=([-+]?\d)([^,;]+)$/
+        raise "Jiny mesic v RRULE a DTSTART v DAYLIGHT komponente" unless
+            struct.dl_month == $1.to_i
+
+        struct.dl_wday_pos = $2.to_i
+        struct.dl_wday = $3.downcase.intern
+
+        $stderr.puts "Jiny den v tydnu v RRULE a DTSTART v DAYLIGHT komponente" unless
+            dl['DTSTART'].value.wday == struct.dl_wday
+        $stderr.puts "WARNING: TZOFFSETFROM ve STANDARD neodpovida TZOFFSETTO v DAYLIGHT" unless
+            st['TZOFFSETFROM'].value.to_i == struct.dl_offset
+        $stderr.puts "WARNING: TZOFFSETTO ve STANDARD neodpovida TZOFFSETFROM v DAYLIGHT" unless
+            dl['TZOFFSETFROM'].value.to_i == struct.st_offset
+    end
+
+    (structs[struct] ||= []) << tz['X-LIC-LOCATION'].value
+end
+ 
+
+source_file = File.join(File.dirname(__FILE__), '../..', 'lib/vformat/zoneinfo.rb')
+source = File.read(source_file)
+
+source.sub!(/## GENERATED-BEGIN ##.*## GENERATED-END ##/m) do
+    f = []
+    f << "## GENERATED-BEGIN ##"
+    f << "        s = StStruct"
+    f << "        d = StDlStruct"
+    f << ""
+    f << "        STRUCTS = ["
+    
+    structs_keys = structs.keys.sort_by do |st| 
+        if st.dl_offset
+            [
+                st.st_offset, 
+                st.dl_offset, 
+                st.st_month,
+                st.st_hour,
+                st.st_min,
+                st.st_sec,
+                st.dl_month,
+                st.dl_hour,
+                st.dl_min,
+                st.dl_sec,
+            ]
+        else
+            [st.st_offset]
+        end
+    end
+
+    structs_keys.each_with_index do |st, i|
+        if st.dl_offset
+            st = st.map {|s| s.inspect}.join(', ')
+            f << "            d.new(#{st}), # #{i}"
+        else
+            f << "            s.new(#{st.st_offset.inspect}, #{st.st_name.inspect}), # #{i}"
+        end
+    end
+
+    structs.rehash
+
+    f << "        ]"
+    f << ""
+    f << "        LOCATION_TO_STRUCT = {"
+
+    locations = {}
+    structs_keys.each_with_index {|s, i| structs[s].each {|l| locations[l] = i} }
+
+    locations.sort_by {|l, i| l}.each do |l, i|
+        f << "            #{l.inspect}.freeze => #{i},"
+    end
+
+    f << "        }"
+    f << ""
+    f << "        s = STRUCT_TO_LOCATION = {}"
+    f << "        LOCATION_TO_STRUCT.each {|l, i| (s[i] ||= []) << l}"
+    f << ""
+    f << "        # \"st_offset\" or \"st_offset dl_offset st_month st_hour st_min st_sec dl_month dl_hour dl_min dl_sec\""
+    f << "        #"
+    f << "        OFFSET_TO_STRUCT = {"
+
+    offsets = {}
+
+    structs_keys.each_with_index do |st, i| 
+        if st.dl_offset
+            (offsets[[
+                st.st_offset, 
+                st.dl_offset, 
+                st.st_month,
+                st.st_hour,
+                st.st_min,
+                st.st_sec,
+                st.dl_month,
+                st.dl_hour,
+                st.dl_min,
+                st.dl_sec,
+            ]] ||= []) << i
+        else
+            (offsets[[st.st_offset]] ||= []) << i
+        end
+    end
+
+    offsets.sort_by {|o, a| o}.each do |o, a|
+        raise "Indexi nejsou v rade: #{a.inspect}" unless a == (a.first..a.last).to_a
+
+        f << "            #{o.join(" ").inspect}.freeze => #{a.first}..#{a.last},"
+    end
+
+    f << "        }"
+    f << "        ## GENERATED-END ##"
+    f.join("\n")
+end
+
+File.open(source_file, 'w') {|f| f.write source}
+
+puts
+puts "Vysledek byl zapsan do #{source_file}"
+

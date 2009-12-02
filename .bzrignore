@@ -1,0 +1,6 @@
+./debian/files
+./debian/libvformat-ruby1.8
+./.config-libvformat-ruby1.8
+./InstalledFiles
+./debian/libvformat-ruby-doc
+.bzr_old
