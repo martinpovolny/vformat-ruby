@@ -83,9 +83,61 @@ module VFormat
             def_component VFormat::VCARD21
         end
 
+        class VCARD21Win < PreRFC
+            version       '2.1'
+            def_component VFormat::VCARD21
+
+            def detect_encoding(raw_value)
+                if @charset.nil?
+                    @params["CHARSET"] = 'windows-1250'
+                elsif @charset == false
+                    @params.delete "CHARSET"
+                else
+                    @params["CHARSET"] = @charset
+                end
+            end
+
+            def encode(atr)
+                @attribute = atr
+                @params    = atr.params.dup
+                @encoding  = nil
+                @charset   = nil
+                @result    = result = ''
+
+                result << atr.group << '.' if atr.group
+                result << atr.name
+
+                @attribute.value.customize_encoder(self)
+                raw_value = @attribute.value.encode(self.class)
+                
+                detect_encoding(raw_value)
+
+                @params.each do |pname, pvalues|
+                    pvalues = Array(pvalues)
+                    encode_param(pname, pvalues) unless pvalues.empty?
+                end
+
+                result << ':'
+                value = raw_value
+                if (@params['CHARSET'] and @params['CHARSET'] != 'UTF-8')
+                    case value
+                    when Array
+                        value.map! { |t| Iconv.new("UTF-8", @params['CHARSET']).iconv(t) }
+                    else
+                        value.class.edump
+                        value.edump
+                        value = Iconv.new(@params['CHARSET'], "UTF-8").iconv(raw_value) 
+                    end
+                end
+                append_raw_value(value)
+                result
+            end
+
+        end
+
         class VCARD30 < RFC2425
             version         '3.0'
-            previous_version VCARD21
+            previous_version VCARD21Win
             def_component    VFormat::VCARD30
             register_as_default
         end
