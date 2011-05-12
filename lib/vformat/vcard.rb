@@ -137,7 +137,7 @@ module VFormat
 
         class VCARD30 < RFC2425
             version         '3.0'
-            previous_version VCARD21Win
+            previous_version VCARD21
             def_component    VFormat::VCARD30
             register_as_default
         end

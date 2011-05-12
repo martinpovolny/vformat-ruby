@@ -1,3 +1,15 @@
+libvformat-ruby (2007.Q2.12) unstable; urgency=low
+
+  * Oprava VCARDu
+
+ -- Lukas Svoboda <lukas.svoboda@ryant.cz>  Wed,  3 Feb 2010 10:45:39 +0100
+
+libvformat-ruby (2007.Q2.11) unstable; urgency=low
+
+  * pridani VCARD ktery umi importovat widle
+
+ -- Lukas Svoboda <lukas.svoboda@ryant.cz>  Wed,  2 Dec 2009 10:13:43 +0100
+
 libvformat-ruby (2007.Q2.10) unstable; urgency=low
 
   * Pridani encoderu do VFormat::Value#encode a VFormat::Value#decode_raw.
