@@ -458,8 +458,10 @@ module VFormat
                dl_dtstart.type == :date_time and
                dl_rrule = dl['RRULE'].value and
                st_rrule = st['RRULE'].value and
-               st_rrule.freq == :yearly and
-               dl_rrule.freq == :yearly
+               (   st_rrule.freq == :yearly or
+                 ( st_rrule.freq == :monthly and st_rrule.interval == 12 ) ) and
+               (   dl_rrule.freq == :yearly or 
+                 ( dl_rrule.freq == :monthly and dl_rrule.interval == 12 ) )
 
                 struct = ZoneInfo::StDlStruct.new
                 struct.set_st_from_date_time(st_dtstart)

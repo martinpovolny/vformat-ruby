@@ -124,8 +124,6 @@ module VFormat
                     when Array
                         value.map! { |t| Iconv.new("UTF-8", @params['CHARSET']).iconv(t) }
                     else
-                        value.class.edump
-                        value.edump
                         value = Iconv.new(@params['CHARSET'], "UTF-8").iconv(raw_value) 
                     end
                 end
