@@ -1,0 +1,237 @@
+== VFormat Ruby Library
+
+=== Author
+
+Jan Becvar <jan.becvar@solnet.cz>
+
+=== License
+
+This software is distributed under the Ruby License.
+
+=== About
+
+VFormat is a library for processing of data formated according to RFC2425 and it's modifications.
+
+At the moments these formats are implemented:
+
+* rfc2425 (http://www.ietf.org/rfc/rfc2425.txt)
+* vCard 2.1 (http://www.imc.org/pdi/pdiproddev.html)
+* vCard 3.0 (http://www.ietf.org/rfc/rfc2426.txt)
+* vCalendar 1.0 (http://www.imc.org/pdi/pdiproddev.html)
+* iCalendar 2.0 (http://www.ietf.org/rfc/rfc2445.txt)
+
+Formaty vCard 3.0 a iCalendar 2.0 are based on rfc2445. iCalendar 2.0 is slightli different then the rest.
+
+Formaty vCard 2.1 a vCalendar 1.0 match each other, but rfc2425 is completely incopatible with those two.
+
+The library works with string data in UTF-8 encoding - to UTF-8 texts are redoded during parsing
+and this encoding is assumed when dumping.
+
+=== Basic usage
+
+The main building block of VFormatu is (+VFormat::Component+) that maintains a set of 
+attributes (+VFormat::Attribute+) and other (included) components.
+
+From  +VFormat::Component+ these components are derived:
+
+* +VFormat::VCARD30+
+* +VFormat::VCALENDAR20+
+* +VFormat::VEVENT20+
+* ....
+
+Components reside in 'vformat/icalendar' and
+'vformat/vcard'. After 'requiring' them they can be easily found
+by name and version +VFormat::[]+. 
+
+Example of creation and population of a VCALENDAR (in the default version of 2.0)
+and dumping it as string.
+
+    require 'vformat/icalendar'
+    
+    ical = VFormat['VCALENDAR'].new do |c|
+        c.VEVENT do |e|
+            e.DTSTART  '20060706T120000Z'
+            e.DTEND    [2006, 7, 6, 22, 0, 0, 'Z']
+            e.SUMMARY  'Meeting'
+            e.LOCATION 'Horní Třešňovec'
+        end
+    end
+
+    print(ical.encode)
+
++VFormat['VCALENDAR']+ is here the same as +VFormat::VCALENDAR20+. If we used
++VFormat['VCALENDAR', '1.0']+, it would be like accessing directly
++VFormat::VCALENDAR10+.
+
+The result is:
+
+    BEGIN:VCALENDAR
+    VERSION:2.0
+    BEGIN:VEVENT
+    DTSTART:20060706T120000Z
+    DTEND:20060706T220000Z
+    SUMMARY:Meeting
+    LOCATION:Horní Třešňovec
+    END:VEVENT
+    END:VCALENDAR
+
+If we want to convert the component into VCALENDAR 1.0 we do it like this:
+
+    ical = ical.to_version('1.0')
+    print(ical.encode)
+
+Which gives:
+
+    BEGIN:VCALENDAR
+    VERSION:1.0
+    BEGIN:VEVENT
+    DTSTART:20060706T120000Z
+    DTEND:20060706T220000Z
+    SUMMARY:Meeting
+    LOCATION;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:Horn=C3=AD T=C5=99e=C5=A1=
+    =C5=88ovec
+    END:VEVENT
+    END:VCALENDAR
+
+Example of decoding a string and access to attributes and atributu arguments in of a component:
+
+    require 'vformat/vcard'
+    
+    str = <<EOT
+    BEGIN:VCARD
+    VERSION:3.0
+    FN:Bjorn Jensen
+    N:Jensen;Bjorn
+    EMAIL;TYPE=INTERNET:bjorn@umich.edu
+    TEL;TYPE=WORK,VOICE,MSG:+1 313 747-4454
+    KEY;TYPE=X509;ENCODING=b:
+     dGhpcyBjb3VsZCBiZSAKbXkgY2VydGlmaWNhdGUK
+    END:VCARD
+    
+    BEGIN:VCARD
+    VERSION:3.0
+    FN:Jan Becvar
+    N:Becvar;Jan
+    END:VCARD
+    EOT
+    
+    vcards = VFormat.decode(str)  #=> Array
+    vcard = vcards.first          #=> VFormat::VCARD
+    vcard.FN                      #=> VFormat::Attribute
+    vcard.FN.value                #=> "Bjorn Jensen"
+    vcard.N.value                 #=> [["Jensen"], ["Bjorn"]]
+    vcard.KEY.value               #=> "this could be \nmy certificate\n"
+    vcard.TEL.TYPE                #=> ["WORK", "VOICE", "MSG"]
+    vcard.NOTEXIST.value          #=> nil
+
+We can modify the component and dump it in a different format:
+
+    vcard.N.value = ['X', 'Y', 'Z']
+    vcard.N['X-PARAM'] = 'custom parameter'
+    vcard.add 'NOTE', 'text with UTF-8: ěščžčř'
+    vcard.TEL.TYPE << 'HOME'
+    
+    print(vcard.to_version('2.1').encode)
+
+We get:
+
+    BEGIN:VCARD
+    VERSION:2.1
+    FN:Bjorn Jensen
+    N;X-PARAM=custom parameter:X;Y;Z
+    EMAIL;INTERNET:bjorn@umich.edu
+    TEL;WORK;VOICE;MSG;HOME:+1 313 747-4454
+    KEY;X509;ENCODING=BASE64:
+     dGhpcyBjb3VsZCBiZSAKbXkgY2VydGlmaWNhdGUK
+    
+    NOTE;CHARSET=UTF-8;ENCODING=QUOTED-PRINTABLE:text with UTF-8: =C4=9B=C5=A1=
+    =C4=8D=C5=BE=C4=8D=C5=99
+    END:VCARD
+
+=== Advanced usage
+
+Attribute values can be of different type and each of the types need special encoding end decoding.
+
+Predefined components (such as +VFormat::VEVENT20+) include pre-registered names
+of known attribudes and it's alowed types. E.g. the 
+<code>DTSTART</code> attribute can be of type <code>:date_time</code> or 
+<code>:date</code>. When accession attribude with more then one allowed type we to address this:
+
+    if vevent.DTSTART.date?
+        do_something_with_date(vevent.DTSTART.value)
+    else
+        do_something_with_date_time(vevent.DTSTART.value)
+    end
+
+If attribude  <code>DTSTART</code> exists in the component, then
+<code>vevent.DTSTART.date?</code> equals to
+<code>vevent.DTSTART.value.type == :date</code> and to
+<code>vevent.DTSTART.value_type?(:date)</code>.
+
+Another example is the <code>PHOTO</code> attribude. In the following sample we
+check if the type of the attribute is <code>:binary</code> and if it has the
+parametr <code>TYPE</code> set to the value of <code>JPEG</code>:
+
+    photo = vcard.PHOTO
+    jpeg_data = photo.value if photo.binary? and photo.type? 'JPEG'
+
+Creation of <code>PHOTO</code> attribute with non-standard typem :uri:
+
+<code>
+vcard.PHOTO 'http\://test/photo.gif', :value_type => :uri
+</code>
+
+Objects returned by the +VFormat::Attribute#value+ method are mostly basic data types
+(String, Array) extended with several methods (module +VFormat::Value::Mixin+). 
+E.g. the +encode+ method:
+
+<code>
+vevent.DTSTART.value.encode #=> "20071220T120000Z"
+</code>
+
+<code>VFormat::Attribute#encode</code> returns:
+
+<code>
+vevent.DTSTART.encode #=> "DTSTART:20071220T120000Z\r\n"
+</code>
+
+Attribudes with names beginning with<code>X-</code> are of type :text by default.
+
+When settion attribute values it it necessary to either directly specify the type using method
+<code>VFormat::Attribute#<type>=</code>, or use method
+<code>VFormat::Attribute#value=</code>, that sets value in the default type for the attribute in question.
+
+    dtstart = vevent.DTSTART
+    dtstart.value = '20071220T100000'
+    dtstart.value #=> "#<struct VFormat::Value::DateTime year=2007, month=12, day=20, ...>
+    dtstart.value = '20071220' #=> raises: ArgumentError: invalid date-time representation
+    dtstart.date  = '20071220'
+    dtstart.value #=> #<struct VFormat::Value::Date year=2007, month=12, day=20>
+    dtstart.date  = [2007, 12, 19]
+    dtstart.value #=> #<struct VFormat::Value::Date year=2007, month=12, day=19>
+    dtstart.encode #=> "DTSTART;VALUE=date:20071219\r\n"
+
+As seen from the example, the values can be initialized in various ways (e.g.
+by the string <code>'20071220'</code>, array <code>[2007, 12, 19]</code>, etc..) -
+anything that the method +new+  on the class implementing the type of the value being set supports.
+(In this example it is the class +VFormat::Value::DateTime+ and +VFormat::Value::Date+).
+
+See methods:
+
+* +VFormat::Attribute.new+
+* +VFormat::Attribute#value+
+* +VFormat::Attribute#value=+
+* +VFormat::Attribute#with_value+
+* +VFormat::Attribute#params+
+* +VFormat::Attribute#default_value_type+
+* +VFormat::Attribute#[]+
+* +VFormat::Attribute#[]=+
+* +VFormat::Component.new+
+* +VFormat::Component#encode+
+* +VFormat::Component#[]+
+* +VFormat::Component#[]=+
+* +VFormat::Component#add+
+* +VFormat.decode+
+
+Also see classes in the module +VFormat::Value+ and definitions of predefined components
+(+VFormat::VCARD30+, +VFormat::VEVENT20+, ... ) in the sources.
