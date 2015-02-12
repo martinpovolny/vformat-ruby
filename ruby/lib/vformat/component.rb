@@ -3,8 +3,6 @@
 #  Copyright (c) 2007 soLNet, s.r.o. 
 #
 
-require 'iconv'
-
 module VFormat
     class Component
         # inicializace atributu v tride

@@ -1,3 +1,4 @@
+# encoding: UTF-8
 #
 #  Copyright (c) 2007 Jan Becvar <jan.becvar@solnet.cz>
 #  Copyright (c) 2007 soLNet, s.r.o. 
@@ -137,7 +138,7 @@ FN:Bj=F8rn Jensen
 N:Jensen;Bj=F8rn
 EMAIL;TYPE=INTERNET:bjorn@umich.edu
 TEL;TYPE=WORK,VOICE,MSG:+1 313 747-4454
-KEY;TYPE=X509;ENCODING=b:
+KEY;ENCODING=b;TYPE=X509:
  dGhpcyBjb3VsZCBiZSAKbXkgY2VydGlmaWNhdGUK
 END:VCARD
 EOT
@@ -177,7 +178,7 @@ NOTE:The Mayor of the great city of Goerlitz in the great country of German
 EMAIL;TYPE=INTERNET:mb@goerlitz.de
 HOME.TEL;TYPE=FAX,VOICE,MSG:+49 3581 123456
 HOME.LABEL:Hufenshlagel 1234\\n02828 Goerlitz\\nDeutschland
-KEY;TYPE=X509;ENCODING=b:
+KEY;ENCODING=b;TYPE=X509:
  MIICajCCAdOgAwIBAgICBEUwDQYJKoZIhvcNAQEEBQAwdzELMAkGA1UEBhMC
  VVMxLDAqBgNVBAoTI05ldHNjYXBlIENvbW11bmljYXRpb25zIENvcnBvcmF0
  aW9uMRwwGgYDVQQLExNJbmZvcm1hdGlvbiBTeXN0ZW1zMRwwGgYDVQQDExNy

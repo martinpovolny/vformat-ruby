@@ -1,0 +1,7 @@
+debian/files
+debian/libvformat-ruby-doc.debhelper.log
+debian/libvformat-ruby-doc.substvars
+debian/libvformat-ruby-doc/
+debian/ruby-vformat.debhelper.log
+debian/ruby-vformat.substvars
+debian/ruby-vformat/

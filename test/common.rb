@@ -1,3 +1,4 @@
+# encoding: UTF-8
 #
 #  Copyright (c) 2007 Jan Becvar <jan.becvar@solnet.cz>
 #  Copyright (c) 2007 soLNet, s.r.o. 
@@ -8,6 +9,7 @@
 $:.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'vformat/icalendar'
+require 'vformat/zoneinfo'
 require 'vformat/vcard'
 require 'test/unit'
 include VFormat

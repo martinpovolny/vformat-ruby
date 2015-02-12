@@ -1079,14 +1079,15 @@ module VFormat
                 not_space = /[^\s]+/
 
                 map_timelist = proc do |vals|
-                    return [] if vals.empty?
-
-                    vals = vals.scan(/\d\d\d\d\$?/)
-                    vals.each do |hhmm|
-                        raise DecodeError, "hhmm value `#{hhmm}' out of range" unless
-                            (0..23).include?(hhmm[0, 2].to_i) and (0..59).include?(hhmm[2, 2].to_i)
+                    ret = []
+                    if !vals.empty?
+                        ret = vals.scan(/\d\d\d\d\$?/)
+                        ret.each do |hhmm|
+                            raise DecodeError, "hhmm value `#{hhmm}' out of range" unless
+                                (0..23).include?(hhmm[0, 2].to_i) and (0..59).include?(hhmm[2, 2].to_i)
+                        end
                     end
-                    vals
+                    ret
                 end
 
                 str.upcase.scan(/
@@ -1421,7 +1422,7 @@ module VFormat
 
             def detect_encoding(raw_value)
                 super
-                @params['ENCODING'] = 'BASE64' if @encoding == :b64
+                @params['ENCODING'] = 'BASE64' if @enc_type == :b64
             end
         end
     end # VFormat::Encoder

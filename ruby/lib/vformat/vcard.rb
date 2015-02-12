@@ -100,7 +100,7 @@ module VFormat
             def encode(atr)
                 @attribute = atr
                 @params    = atr.params.dup
-                @encoding  = nil
+                @enc_type  = nil
                 @charset   = nil
                 @result    = result = ''
 

@@ -298,7 +298,7 @@ module VFormat
             #   nil - autodetekce
             #   :b64, :qp - pouzit zadane kodovani
             #
-            attr_accessor :encoding
+            attr_accessor :enc_type
             
             # [nil|false|String] jaky charset se nastavi do CHARSET parametru
             # (jestlize to format dovoluje):
@@ -313,7 +313,7 @@ module VFormat
             def encode(atr)
                 @attribute = atr
                 @params    = atr.params.dup
-                @encoding  = nil
+                @enc_type  = nil
                 @charset   = nil
                 @result    = result = ''
 
@@ -325,8 +325,8 @@ module VFormat
                 
                 detect_encoding(raw_value)
 
-                @params.each do |pname, pvalues|
-                    pvalues = Array(pvalues)
+                @params.keys.sort.each do |pname|
+                    pvalues = Array(@params[pname])
                     encode_param(pname, pvalues) unless pvalues.empty?
                 end
 
@@ -338,14 +338,14 @@ module VFormat
         private
 
             def detect_encoding(raw_value)
-                unless @encoding # nastavit ho mohla +value.encode+ metoda
+                unless @enc_type # nastavit ho mohla +value.encode+ metoda
                     # musime provest detekci kodovani - pouzijeme b64 i v
                     # pripade, ze raw_value obsahuje \r a \n znaky
                     #
-                    @encoding = :b64 if raw_value =~ /[\x00-\x08\x0a-\x1f]/u
+                    @enc_type = :b64 if raw_value.enc_is_b64?
                 end
 
-                if @encoding == :b64
+                if @enc_type == :b64
                     @params['ENCODING'] = 'b'
                 else
                     @params.delete 'ENCODING'
@@ -388,7 +388,7 @@ module VFormat
                 # In particular, it would be an error to put a line break within
                 # a UTF-8 character.
                 #
-                if @encoding == :b64
+                if @enc_type == :b64
                     # zafoldujeme vse pred b64 daty, tesne pred nimi zalomime a zbytek
                     # nechame na b64 kodovani samotnem
                     #
@@ -470,20 +470,20 @@ module VFormat
             end
             
             def detect_encoding(raw_value)
-                unless @encoding # nastavit ho mohla +value.customize_encoder+ metoda
+                unless @eenc_type # nastavit ho mohla +value.customize_encoder+ metoda
                     # musime provest detekci kodovani
                     #
-                    if raw_value =~ /[\x00-\x08\x0e-\x1f]/u
-                        @encoding = :b64
-                    elsif @result.size + raw_value.size >= 75 or raw_value =~ /[\r\n\x80-\xff]/u
+                    if raw_value.raw_is_b64?
+                        @enc_type = :b64
+                    elsif @result.size + raw_value.size >= 75 or raw_value.raw_is_qp?
                         # :qp pouzijeme kdykoliv je potreba provest folding, nebo
                         # escapovat spec. znaky, jako jsou napr. \r, \n
                         #
-                        @encoding = :qp
+                        @enc_type = :qp
                     end
                 end
 
-                case @encoding
+                case @enc_type
                 when :b64 
                     @params['ENCODING'] = 'BASE64'
                 when :qp
@@ -496,9 +496,9 @@ module VFormat
                 when nil
                     # autodetekce charsetu - je potreba pouze v pripade, ze
                     # raw_value obsahuje divne znaky - tzn. je nastaven
-                    # @encoding
+                    # @enc_type
                     # 
-                    if @encoding
+                    if @enc_type
                         @params["CHARSET"] = 'UTF-8'
                     else
                         @params.delete "CHARSET"
@@ -516,7 +516,7 @@ module VFormat
                 # between two characters by inserting a CRLF immediately followed by a
                 # single <WS> (white space) character.
                 #
-                case @encoding
+                case @enc_type
                 when :b64 
                     # tesne pred b64 daty zalomime a zalamani data nechame na
                     # b64 kodovani samotnem; na konec dat nechame dat prazdny
@@ -556,7 +556,7 @@ module VFormat
 
                 else
                     # nemusime provadet folding - vsechny dlouhe radky maji :qp
-                    # encoding
+                    # enc_type
                     #
                     @result << raw_value
                 end
@@ -574,7 +574,7 @@ module VFormat
             #
             module WithoutFolding
                 def append_raw_value(raw_value)
-                    if @encoding == :qp
+                    if @enc_type == :qp
                         @result << Encoder.encode_qp(raw_value) << CRLF
                     else
                         super

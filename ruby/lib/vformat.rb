@@ -483,7 +483,7 @@ module VFormat
             # split +str+ on \r\n or \n to get the lines and unfold continued lines
             # (they start with ' ' or \t)
             #
-            str.to_str.each("\n") do |line|
+            str.split(/(?:\r\n|\n)/m).each do |line|
                 line.chomp!
 
                 if attr_line

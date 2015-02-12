@@ -4,6 +4,47 @@
 #
 require 'date'
 
+class String
+  if RUBY_VERSION =~ /^1\.8/
+    def enc_is_b64?
+        self =~ /([\x00-\x08]|[\x0a-\x1f])/n
+    end
+    def raw_is_b64?
+        self =~ /([\x00-\x08]|[\x0e-\x1f])/n
+    end
+    def raw_is_qp?
+        self =~ /([\r\n]|[^\x00-\x7f])/n
+    end
+    def force_encoding(enc)
+        self
+    end
+    require 'iconv'
+    def self.to_utf8(str, charset)
+        @iconv_charset ||= nil
+
+        unless @iconv_charset == charset
+            @iconv_cached  = Iconv.new("UTF-8", charset)
+            @iconv_charset = charset
+        end
+
+       @iconv_cached.iconv(str)
+    end
+  else
+    def enc_is_b64?
+        self =~ /([\x00-\x08]|[\x0a-\x1f])/u
+    end
+    def raw_is_b64?
+        self =~ /([\x00-\x08]|[\x0e-\x1f])/u
+    end
+    def raw_is_qp?
+        self =~ /([\r\n]|[^\x00-\x7f])/u
+    end
+    def self.to_utf8(str, charset)
+        str.dup.to_s.force_encoding(charset).encode("UTF-8")
+    end
+  end
+end
+
 module VFormat
 
     # Modul +Value+ obsahuje objekty reprezentujici hodnoty atributu.
@@ -157,25 +198,15 @@ module VFormat
             # [nil|Symbol] v jakem kodovani se ma hodnota zakodovat (nil -
             # autodetekce, :b64 - BASE64, :qp - QUOTED-PRINTABLE)
             #
-            attr_accessor :encoding
+            attr_accessor :enc_type
 
             def self.decode_raw(raw, encoder = VFormat::Encoder::RFC2425)
                 raw.dup
             end
 
-            def self.to_utf8(str, charset)
-                @iconv_charset ||= nil
-
-                unless @iconv_charset == charset
-                    @iconv_cached  = Iconv.new("UTF-8", charset)
-                    @iconv_charset = charset
-                end
-
-               @iconv_cached.iconv(str)
-            end
 
             def initialize(args = [])
-                @encoding = args[1]
+                @enc_type = args[1]
                 @charset  = args[2]
                 super(args[0])
             end
@@ -190,11 +221,12 @@ module VFormat
                     self.class.to_utf8(self, @charset)
                 else
                     self
+                    force_encoding('UTF-8')
                 end
             end
 
             def customize_encoder(enc_instance)
-                enc_instance.encoding = encoding
+                enc_instance.enc_type = enc_type
                 enc_instance.charset  = charset
                 
                 # Raw necha parametr VALUE beze zmeny
@@ -235,7 +267,7 @@ module VFormat
             end
 
             def customize_encoder(enc_instance)
-                enc_instance.encoding = :b64
+                enc_instance.enc_type = :b64
                 enc_instance.charset  = false
                 super
             end
