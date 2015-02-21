@@ -15,7 +15,7 @@ class String
     def raw_is_qp?
         self =~ /([\r\n]|[^\x00-\x7f])/n
     end
-    def force_encoding(enc)
+    def force_encoding_vformat(enc)
         self
     end
     require 'iconv'
@@ -38,6 +38,9 @@ class String
     end
     def raw_is_qp?
         self =~ /([\r\n]|[^\x00-\x7f])/u
+    end
+    def force_encoding_vformat(enc)
+        force_encoding(enc)
     end
     def self.to_utf8(str, charset)
         str.dup.to_s.force_encoding(charset).encode("UTF-8")
@@ -221,7 +224,7 @@ module VFormat
                     self.class.to_utf8(self, @charset)
                 else
                     self
-                    force_encoding('UTF-8')
+                    force_encoding_vformat('UTF-8')
                 end
             end
 

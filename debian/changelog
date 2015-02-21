@@ -1,3 +1,10 @@
+libvformat-ruby (2015.Q1.2) unstable; urgency=medium
+
+  * fix - compatibility with String.force_encoding() checks from other
+    libraries
+
+ -- Marek Veber <Marek.Veber@solnet.cz>  Sat, 21 Feb 2015 10:16:01 +0100
+
 libvformat-ruby (2015.Q1.1) unstable; urgency=medium
 
   * build pro ruby2.1
