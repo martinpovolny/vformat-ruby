@@ -1,4 +1,4 @@
-Source: libvformat-ruby
+Source: ruby-vformat
 Section: interpreters
 Priority: optional
 Maintainer: Jan Becvar <jan.becvar@solnet.cz>
@@ -14,8 +14,3 @@ X-DhRuby-Root: ruby
 Description: vCard, vCalendar, iCalendar library fo Ruby
  TODO
 
-Package: libvformat-ruby-doc
-Architecture: all
-Multi-Arch: foreign
-Description: vCard, vCalendar, iCalendar library fo Ruby (documentation)
- TODO
