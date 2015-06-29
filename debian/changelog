@@ -1,3 +1,9 @@
+libvformat-ruby (2015.Q1.3) unstable; urgency=medium
+
+  * přidání konfliktu s libvformat-ruby1.8
+
+ -- Marek Veber <Marek.Veber@solnet.cz>  Mon, 29 Jun 2015 22:15:08 +0200
+
 libvformat-ruby (2015.Q1.2) unstable; urgency=medium
 
   * fix - compatibility with String.force_encoding() checks from other

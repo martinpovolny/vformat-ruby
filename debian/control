@@ -9,6 +9,7 @@ XS-Ruby-Versions: all
 Package: ruby-vformat
 Architecture: all
 Multi-Arch: foreign
+Conflicts: libvformat-ruby1.8
 XB-Ruby-Versions: ${ruby:Versions}
 X-DhRuby-Root: ruby
 Description: vCard, vCalendar, iCalendar library fo Ruby
