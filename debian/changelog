@@ -1,4 +1,4 @@
-libvformat-ruby (2015.Q1.3) unstable; urgency=medium
+ruby-vformat (2015.Q1.3) unstable; urgency=medium
 
   * přidání konfliktu s libvformat-ruby1.8
 
