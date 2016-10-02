@@ -2,3 +2,4 @@ debian/files
 debian/ruby-vformat.debhelper.log
 debian/ruby-vformat.substvars
 debian/ruby-vformat/
+debian/debhelper-build-stamp

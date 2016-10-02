@@ -18,16 +18,13 @@ class String
     def force_encoding_vformat(enc)
         self
     end
-    require 'iconv'
     def self.to_utf8(str, charset)
         @iconv_charset ||= nil
 
         unless @iconv_charset == charset
-            @iconv_cached  = Iconv.new("UTF-8", charset)
             @iconv_charset = charset
         end
-
-       @iconv_cached.iconv(str)
+        SasIconv.to_utf8(@iconv_charset, str)
     end
   else
     def enc_is_b64?

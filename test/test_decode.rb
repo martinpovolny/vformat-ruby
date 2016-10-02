@@ -181,6 +181,19 @@ EOT
             VFormat.decode(VFormat.decode(ical).first.encode)
         )
     end
+    def test_encoding
+        event = nil
+        File.open(File.join(File.dirname(__FILE__), "test_decode-encoding.ics"), 'r:WINDOWS-1251') {|f| event = f.read }
+        cmp_component_attributes(
+            [VFormat['VEVENT'].new do |e|
+               e.DESCRIPTION 'Всероссийская отраслевая конференция «Безопасность критически важных объектов ТЭК»'
+               e.SUMMARY     'Всероссийская отраслевая конференция «Безопасность критически важных объектов ТЭК»'
+               e.LOCATION    'Москва'
+             end
+            ],
+            VFormat.decode(event)
+        )
+    end
 
     def test_card
         # RFC2425 - 8.2. Example 2 and Example 3

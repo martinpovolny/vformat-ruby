@@ -10,6 +10,7 @@ Package: ruby-vformat
 Architecture: all
 Multi-Arch: foreign
 Conflicts: libvformat-ruby1.8
+Depends: solnet-common (>= 2010.Q1.47)
 XB-Ruby-Versions: ${ruby:Versions}
 X-DhRuby-Root: ruby
 Description: vCard, vCalendar, iCalendar library fo Ruby

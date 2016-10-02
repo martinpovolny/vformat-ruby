@@ -351,6 +351,13 @@ end # VFormat
 
 
 require 'enumerator'
+begin
+    require 'solnet'
+    require 'sasiconv'
+rescue Exception => e
+    raise e unless (LoadError === e)
+    require 'vformat/sasiconv'
+end
 require 'vformat/attribute'
 require 'vformat/value'
 require 'vformat/encoder'

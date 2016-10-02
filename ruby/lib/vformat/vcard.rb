@@ -122,9 +122,9 @@ module VFormat
                 if (@params['CHARSET'] and @params['CHARSET'] != 'UTF-8')
                     case value
                     when Array
-                        value.map! { |t| Iconv.new("UTF-8", @params['CHARSET']).iconv(t) }
+                        value.map! { |t| SasIconv::from_utf8(@params['CHARSET'],t) }
                     else
-                        value = Iconv.new(@params['CHARSET'], "UTF-8").iconv(raw_value) 
+                        value = SasIconv::from_utf8(@params['CHARSET'], raw_value) 
                     end
                 end
                 append_raw_value(value)
