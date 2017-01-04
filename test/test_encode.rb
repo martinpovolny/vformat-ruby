@@ -36,8 +36,8 @@ class TestEncode < Test::Unit::TestCase
     end
 
     def test_event
-        c = VFormat['VCALENDAR'].new do |c|
-            c.VEVENT do |e|
+        c = VFormat['VCALENDAR'].new do |cx|
+            cx.VEVENT do |e|
                 e.SUMMARY 'test'
             end
         end
@@ -47,10 +47,10 @@ class TestEncode < Test::Unit::TestCase
             c.encode
         )
 
-        c = VFormat['VCALENDAR'].new do |c|
-            c.add_timezone('Europe/Prague')
+        c = VFormat['VCALENDAR'].new do |cx|
+            cx.add_timezone('Europe/Prague')
 
-            c.VEVENT do |e|
+            cx.VEVENT do |e|
                 e.DTSTART  '20060706T120000Z'
                 e.DTEND    [2006, 7, 6, 22, 0, 0, 'Z']
                 e.SUMMARY  'Meeting+èΔΦüΔèåäæàÇΓñööøòßΠΠΣvzå@mjogmdwgmtjdmgdnemjPDpmpmtdpwmgN.m'
@@ -119,14 +119,14 @@ EOT
     def test_card
         # RFC2425 - 8.2. Example 2 and Example 3
         #
-        c = VFormat['VCARD'].new do |c|
-            c.SOURCE 'ldap://cn=bjorn%20Jensen, o=university%20of%20Michigan, c=US'
-            c.NAME   'Bjorn Jensen'
-            c.FN     'Bj=F8rn Jensen'
-            c.N      %w(Jensen Bj=F8rn)
-            c.EMAIL  'bjorn@umich.edu', 'TYPE' => 'INTERNET'
-            c.TEL    '+1 313 747-4454', 'TYPE' => %w(WORK VOICE MSG)
-            c.KEY    "this could be \nmy certificate\n", 'TYPE' => 'X509'
+        c = VFormat['VCARD'].new do |cx|
+            cx.SOURCE 'ldap://cn=bjorn%20Jensen, o=university%20of%20Michigan, c=US'
+            cx.NAME   'Bjorn Jensen'
+            cx.FN     'Bj=F8rn Jensen'
+            cx.N      %w(Jensen Bj=F8rn)
+            cx.EMAIL  'bjorn@umich.edu', 'TYPE' => 'INTERNET'
+            cx.TEL    '+1 313 747-4454', 'TYPE' => %w(WORK VOICE MSG)
+            cx.KEY    "this could be \nmy certificate\n", 'TYPE' => 'X509'
         end
 
         assert_equal_encoded(<<EOT, c.encode)
@@ -145,20 +145,20 @@ EOT
 
         # RFC2425 - 8.2. Example 3
         #
-        c = VFormat['VCARD'].new do |c|
-            c.SOURCE 'ldap://cn=Meister%20Berger,o=Universitaet%20Goerlitz,c=DE'
-            c.NAME   'Meister Berger'
-            c.FN     'Meister Berger'
-            c.N      %w(Berger Meister)
-            c.BDAY   [1963, 9, 21], :value_type => :date
-            c.ORG    'Universit=E6t G=F6rlitz'
-            c.TITLE  'Mayor'
-            c.TITLE  'Burgermeister', 'LANGUAGE' => 'de'
-            c.NOTE   'The Mayor of the great city of Goerlitz in the great country of Germany.'
-            c.EMAIL  'mb@goerlitz.de', 'TYPE' => 'INTERNET'
-            c.TEL    '+49 3581 123456', :group => 'HOME', 'TYPE' => %w(FAX VOICE MSG)
-            c.LABEL  "Hufenshlagel 1234\n02828 Goerlitz\nDeutschland", :group => 'HOME'
-            c.KEY    "0\202\002j0\202\001\323\240\003\002\001\002\002\002\004E0\r\006\t*\206H\206\367\r\001\001\004\005\0000w1\v0\t\006\003U\004\006\023\002US1,0*\006\003U\004\n\023#Netscape Communications Corporation1\0340\032\006\003U\004\v\023\023Information Systems1\0340\032\006\003U\004\003\023\023rootca.netscape.com0\036\027\r970606194759Z\027\r971203194759Z0\201\2111\v0\t\006\003U\004\006\023\002US1&0$\006\003U\004\n\023\035Netscape Communications Corp.1\0300\026\006\003U\004\003\023\017Timothy A Howes1!0\037\006\t*\206H\206\367\r\001\t\001\026\022howes@netscape.com1\0250\023\006\n\t\222&\211\223\362,d\001\001\023\005howes0\\0\r\006\t*\206H\206\367\r\001\001\001\005\000\003K\0000H\002A\000\264%\227\372\302H<\244\263\027\034p\224\274\307\313\344~\263\215)8\2754\327f\2262\255\323vuw(_\217K*#\246\201\342R\316\210\205({K8\206\350\312[\235\027\335\002\202\2471\267\002\247\002\003\001\000\001\2436040\021\006\t`\206H\001\206\370B\001\001\004\004\003\002\000\2400\037\006\003U\035#\004\0300\026\200\024\374\340T\350\a\361\225\336:\367\231\306\256\372\025\fn\304.\2220\r\006\t*\206H\206\367\r\001\001\004\005\000\003\201\201\000^\306\376\350\356h\267<\265\332vI\215?\322\334 \371\261\367q\306\247B\240\313\035c!S26\v\036\231\3400\004\317\214JXL}\312[N\263\215\300\330\331ao/$4\250\213\377\362\255\231U\267\326\311n\316\3145\206U\263!u\272{*jY\370\376\374\272Q\254\037\203\305T2MT\356;|-\212h\341\205\vS\265\031\034\366\025Q\244\240V\333H\230\341\331 \250\270\206S\327\004\350\\Q",
+        c = VFormat['VCARD'].new do |cx|
+            cx.SOURCE 'ldap://cn=Meister%20Berger,o=Universitaet%20Goerlitz,c=DE'
+            cx.NAME   'Meister Berger'
+            cx.FN     'Meister Berger'
+            cx.N      %w(Berger Meister)
+            cx.BDAY   [1963, 9, 21], :value_type => :date
+            cx.ORG    'Universit=E6t G=F6rlitz'
+            cx.TITLE  'Mayor'
+            cx.TITLE  'Burgermeister', 'LANGUAGE' => 'de'
+            cx.NOTE   'The Mayor of the great city of Goerlitz in the great country of Germany.'
+            cx.EMAIL  'mb@goerlitz.de', 'TYPE' => 'INTERNET'
+            cx.TEL    '+49 3581 123456', :group => 'HOME', 'TYPE' => %w(FAX VOICE MSG)
+            cx.LABEL  "Hufenshlagel 1234\n02828 Goerlitz\nDeutschland", :group => 'HOME'
+            cx.KEY    "0\202\002j0\202\001\323\240\003\002\001\002\002\002\004E0\r\006\t*\206H\206\367\r\001\001\004\005\0000w1\v0\t\006\003U\004\006\023\002US1,0*\006\003U\004\n\023#Netscape Communications Corporation1\0340\032\006\003U\004\v\023\023Information Systems1\0340\032\006\003U\004\003\023\023rootca.netscape.com0\036\027\r970606194759Z\027\r971203194759Z0\201\2111\v0\t\006\003U\004\006\023\002US1&0$\006\003U\004\n\023\035Netscape Communications Corp.1\0300\026\006\003U\004\003\023\017Timothy A Howes1!0\037\006\t*\206H\206\367\r\001\t\001\026\022howes@netscape.com1\0250\023\006\n\t\222&\211\223\362,d\001\001\023\005howes0\\0\r\006\t*\206H\206\367\r\001\001\001\005\000\003K\0000H\002A\000\264%\227\372\302H<\244\263\027\034p\224\274\307\313\344~\263\215)8\2754\327f\2262\255\323vuw(_\217K*#\246\201\342R\316\210\205({K8\206\350\312[\235\027\335\002\202\2471\267\002\247\002\003\001\000\001\2436040\021\006\t`\206H\001\206\370B\001\001\004\004\003\002\000\2400\037\006\003U\035#\004\0300\026\200\024\374\340T\350\a\361\225\336:\367\231\306\256\372\025\fn\304.\2220\r\006\t*\206H\206\367\r\001\001\004\005\000\003\201\201\000^\306\376\350\356h\267<\265\332vI\215?\322\334 \371\261\367q\306\247B\240\313\035c!S26\v\036\231\3400\004\317\214JXL}\312[N\263\215\300\330\331ao/$4\250\213\377\362\255\231U\267\326\311n\316\3145\206U\263!u\272{*jY\370\376\374\272Q\254\037\203\305T2MT\356;|-\212h\341\205\vS\265\031\034\366\025Q\244\240V\333H\230\341\331 \250\270\206S\327\004\350\\Q",
                      'TYPE' => 'X509'
         end
 
@@ -230,6 +230,14 @@ EOT
                 VFormat['VCALENDAR', '1.0'].new {|c| c.VEVENT {|e| e.RRULE rule }}.encode
             )
         end
+    end
+
+    def test_encoding_compatibility
+	req = File.read(File.join(File.dirname(__FILE__), 'test_encode-test_encoding_compatibility.ics'))
+        data = req.dup
+        data.force_encoding('BINARY') if data.respond_to?(:force_encoding)
+        e = VFormat.decode(data, '2.0').first
+        assert_equal_comps(req, e.encode)
     end
 end
 

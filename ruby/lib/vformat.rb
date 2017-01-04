@@ -358,6 +358,7 @@ rescue Exception => e
     raise e unless (LoadError === e)
     require 'vformat/sasiconv'
 end
+require 'vformat/force_encoding'
 require 'vformat/attribute'
 require 'vformat/value'
 require 'vformat/encoder'

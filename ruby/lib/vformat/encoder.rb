@@ -470,7 +470,7 @@ module VFormat
             end
             
             def detect_encoding(raw_value)
-                unless @eenc_type # nastavit ho mohla +value.customize_encoder+ metoda
+                unless @enc_type # nastavit ho mohla +value.customize_encoder+ metoda
                     # musime provest detekci kodovani
                     #
                     if raw_value.raw_is_b64?

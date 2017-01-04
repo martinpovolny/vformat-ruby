@@ -152,7 +152,9 @@ module VFormat
                     end
 
                     p = (args[pname] ||= [])
-                    pvalues.scan(PVALUE_REGEXP) { p << ($1 || $2) }
+                    pvalues.scan(PVALUE_REGEXP) do
+                        p << ($1 || $2).force_encoding_vformat(Encoding::UTF_8)
+                    end
                 end
 
                 # kodovani

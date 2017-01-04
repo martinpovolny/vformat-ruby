@@ -14,14 +14,51 @@ require 'vformat/vcard'
 require 'test/unit'
 include VFormat
 
-class Object
-    def edump
-        $stderr.puts(inspect)
-        self
-    end
-end
-
 class Test::Unit::TestCase
+    def comp_sort(c)
+	return comp_sort_a(c.gsub("\r", "").split("\n")).map{|x| x.gsub(/^\s+/, "\t")}.join("\n")
+    end
+    def comp_sort_a(c1)
+	c2 = []
+	c2_sub_comps = []
+	sub_comp = nil
+	c1.each do |i|
+	    if sub_comp
+		if i == "END:#{sub_comp[:name]}"
+		    c2_sub_comps << sub_comp
+		    sub_comp = nil
+                    next
+		end
+	        sub_comp[:body] << i
+		next
+	    end
+	    if i =~ /^BEGIN:(.*)/
+		sub_comp = {:name => $1, :body => []}
+		next
+	    end
+	    if i =~ /^\s/
+		c2[-1] += "\n" + i
+		next
+	    end
+	    c2 << i
+	end
+	ret = c2.sort
+	c2_sub_comps.sort{|a,b| a[:name] <=> b[:name]}.each do |s|
+	    ret += ["BEGIN:#{s[:name]}"] + comp_sort_a(s[:body]) + ["END:#{s[:name]}"]
+	end
+	return ret
+    end
+    def assert_equal_comps(premiss, result)
+        premiss = comp_sort(premiss)
+        result =  comp_sort(result)
+        def result.inspect
+            self
+        end
+        def premiss.inspect
+            self
+        end
+        assert_equal(premiss, result)
+    end
     def assert_equal_encoded(premiss, result)
         premiss = premiss.gsub(/\r?\n/, "\r\n")
 
@@ -53,7 +90,7 @@ class Test::Unit::TestCase
                 if Component === a1.first
                     cmp_component_attributes(a1, a2)
                 else
-                    a1.zip(a2) {|a1, a2| assert_equal(a1, a2)}
+                    a1.zip(a2) {|x1, x2| assert_equal(x1, x2)}
                 end
             end
         end

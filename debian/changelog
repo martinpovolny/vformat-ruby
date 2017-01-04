@@ -1,3 +1,10 @@
+ruby-vformat (2015.Q1.5) unstable; urgency=medium
+
+  * fix RT_25031 - oprava znakové sady u parametrů atributů (pak se při
+    encode míchalo ASCII a UTF8)
+
+ -- Marek Veber <Marek.Veber@solnet.cz>  Wed, 04 Jan 2017 16:45:33 +0100
+
 ruby-vformat (2015.Q1.4) unstable; urgency=medium
 
   * závislost na solnet-common a změna z Iconv -> SasIconv
