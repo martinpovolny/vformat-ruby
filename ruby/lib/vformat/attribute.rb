@@ -153,7 +153,7 @@ module VFormat
 
                     p = (args[pname] ||= [])
                     pvalues.scan(PVALUE_REGEXP) do
-                        p << ($1 || $2).force_encoding_vformat(Encoding::UTF_8)
+                        p << ($1 || $2).force_encoding_vformat('UTF-8')
                     end
                 end
 
